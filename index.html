@@ -299,6 +299,24 @@
                 <div class="upload-subtext">Supports MP3, WAV, MP4, and more</div>
             </div>
             <input type="file" id="fileInput" accept="audio/*,video/*">
+            
+            <!-- OR Divider -->
+            <div style="text-align: center; margin: 1.5rem 0; color: #6b7280; font-weight: 600;">
+                — OR —
+            </div>
+            
+            <!-- URL Input -->
+            <div style="display: flex; gap: 0.5rem;">
+                <input 
+                    type="url" 
+                    id="urlInput" 
+                    placeholder="Paste audio/video URL (e.g., https://example.com/audio.mp3)"
+                    style="flex: 1; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem;"
+                >
+                <button id="loadUrlBtn" class="btn-primary" style="white-space: nowrap;">
+                    🔗 Load from URL
+                </button>
+            </div>
 
             <!-- Audio Player (hidden) -->
             <audio id="audioPlayer" style="display: none;"></audio>
@@ -391,6 +409,8 @@
         const progressFill = document.getElementById('progressFill');
         const downloadTxtBtn = document.getElementById('downloadTxtBtn');
         const downloadSrtBtn = document.getElementById('downloadSrtBtn');
+        const urlInput = document.getElementById('urlInput');
+        const loadUrlBtn = document.getElementById('loadUrlBtn');
 
         // File upload
         fileInput.addEventListener('change', (e) => {
@@ -404,6 +424,40 @@
                 const url = URL.createObjectURL(file);
                 audioPlayer.src = url;
             }
+        });
+
+        // Load from URL
+        loadUrlBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please enter a URL!');
+                return;
+            }
+            
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Please enter a valid URL!');
+                return;
+            }
+            
+            // Get filename from URL
+            const filename = url.split('/').pop().split('?')[0] || 'audio-from-url';
+            
+            uploadText.textContent = filename;
+            uploadArea.classList.add('has-file');
+            controls.classList.remove('hidden');
+            
+            // Set audio source directly
+            audioPlayer.src = url;
+            audioPlayer.load();
+            
+            // Create a fake file object for reference
+            audioFile = { name: filename, fromUrl: true };
+            
+            urlInput.value = '';
         });
 
         // Format time
